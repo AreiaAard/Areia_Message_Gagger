@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE muclient>
+
+<muclient>
+<plugin
+   name="Areia_Omit"
+   author="Areia"
+   id="98bd568f0d8a860acccd0db2"
+   language="Lua"
+   purpose="Gag MUD output"
+   save_state="n"
+   date_written="2021-03-01 14:00:00"
+   requires="5.07"
+   version="1.0"
+   >
+<description trim="y">
+<![CDATA[
+]]>
+</description>
+
+</plugin>
+
+<include name="constants.lua"/>
+
+
+
+<aliases>
+</aliases>
+
+
+
+<triggers>
+</triggers>
+
+
+
+<script>
+<![CDATA[
+require "commas"
+require "gmcphelper"
+require "tprint"
+require "var"
+dofile(GetInfo(60) .. "aardwolf_colors.lua")
+
+
+
+--------------------------------------------------
+-- Utility
+--------------------------------------------------
+
+Utility = {}
+
+function Utility.initialize()
+    -- General aliases
+    
+    local initializers = {
+    }
+    for _, initializer in ipairs(initializers) do
+        initializer()
+    end
+end
+
+function Utility.deinitialize()
+    local aliases = GetAliasList()
+    if (aliases) then
+        for i = 1, #aliases do
+            EnableAlias(aliases[i], false)
+            DeleteAlias(aliases[i])
+        end
+    end
+    local triggers = GetTriggerList()
+    if (triggers) then
+        for i = 1, #triggers do
+            EnableTrigger(triggers[i], false)
+            DeleteTrigger(triggers[i])
+        end
+    end
+end
+
+function Utility.print(str)
+    -- Lets us use Aard color codes in our ColourNotes
+    AnsiNote(stylesToANSI(ColoursToStyles("@w" .. str .. "@w")))
+end
+
+function Utility.plugin_message(str)
+    Utility.print(string.format("(@YAreiaOmit@w): %s", str))
+end
+
+
+
+--------------------------------------------------
+-- Plugin Callbacks
+--------------------------------------------------
+
+function OnPluginInstall()
+    Utility.initialize()
+end
+
+function OnPluginConnect()
+    Send_GMCP_Packet("request char")
+end
+
+function OnPluginEnable()
+    OnPluginInstall()
+    if (IsConnected()) then
+        OnPluginConnect()
+    end
+end
+
+function OnPluginClose()
+    Utility.deinitialize()
+end
+
+function OnPluginDisable()
+    OnPluginClose()
+end
+
+function OnPluginBroadcast(msg, id, name, text)
+    if (id == "3e7dedbe37e44942dd46d264") then -- GMCP handler
+    end
+end
+]]>
+</script>
+
+
+</muclient>
