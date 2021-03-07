@@ -37,10 +37,1598 @@
 <script>
 <![CDATA[
 require "commas"
+require "copytable"
 require "gmcphelper"
 require "tprint"
 require "var"
 dofile(GetInfo(60) .. "aardwolf_colors.lua")
+
+
+
+local DEFAULT_OMIT_GROUPS = {
+    ["spellup_off"] = {
+        ["enabled"] = true,
+        ["messages"] = {
+            ["absorb"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer absorb magical attacks\\.$"
+            },
+            ["accelerate"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel yourself slow down\\.$"
+            },
+            ["acidproof"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel more vulnerable to acid\\.$"
+            },
+            ["adrenaline_control"] = {
+                ["enabled"] = true,
+                ["match"] = "^The adrenaline rush wears off\\.$"
+            },
+            ["aid"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less protected\\.$"
+            },
+            ["antimagic_shell"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your anti-magic shell disappears\\.$"
+            },
+            ["armor"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your magical armor wears away\\.$"
+            },
+            ["augmented_healing"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["avoidance"] = {
+                ["enabled"] = true,
+                ["match"] = "^You can no longer avoid some attacks\\.$"
+            },
+            ["awakening"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your mind feels less awake\\.$"
+            },
+            ["awareness"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your awareness fades\\.$"
+            },
+            ["barkskin"] = {
+                ["enabled"] = true,
+                ["match"] = "^The bark surrounding your skin peels away, leaving you more vulnerable\\.$"
+            },
+            ["berserk"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel your pulse slow down\\.$"
+            },
+            ["bless"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less righteous as the blessing upon you fades\\.$"
+            },
+            ["blur"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer blurred\\.$"
+            },
+            ["biofeedback"] = {
+                ["enabled"] = false,
+                ["match"] = "^Your biofeedback is no longer effective\\.$"
+            },
+            ["calculation"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer quite so calculating\\.$"
+            },
+            ["call_upon_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["cell_potential"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["chameleon_power1"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer hidden\\.$"
+            },
+            ["chameleon_power2"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer blend with your surroundings\\.$"
+            },
+            ["champions_strength"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel the loss of your champion's strength\\.$"
+            },
+            ["channel_energy"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer channelling energy\\.$"
+            },
+            ["combat_empathy"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["combat_mind"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your battle sense has faded\\.$"
+            },
+            ["compression"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer feel compressed\\.$"
+            },
+            ["darkness"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your globe of darkness vanishes\\.$"
+            },
+            ["desecration"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["detect_evil"] = {
+                ["enabled"] = true,
+                ["match"] = "^The red in your vision disappears\\.$"
+            },
+            ["detect_good"] = {
+                ["enabled"] = true,
+                ["match"] = "^The gold in your vision disappears\\.$"
+            },
+            ["detect_hidden"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less aware of your surroundings\\.$"
+            },
+            ["detect_invis"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer detect invisibility\\.$"
+            },
+            ["detect_magic"] = {
+                ["enabled"] = true,
+                ["match"] = "^The detect magic wears off\\.$"
+            },
+            ["detect_undead"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["displacement"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer displaced\\.$"
+            },
+            ["divine_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["divine_swiftness"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your divine swiftness slows to a halt\\.$"
+            },
+            ["ectoplasmic_form"] = {
+                ["enabled"] = false,
+                ["match"] = "^You feel solid again\\.$"
+            },
+            ["elemental_focus"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["elemental_ward"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["enchanters_focus"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["energy_ball"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["energy_containment"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer absorb energy\\.$"
+            },
+            ["energy_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less protected from destructive energies\\.$"
+            },
+            ["enhanced_strength"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer feel so huge\\.$"
+            },
+            ["enlightenment"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer feel enlightened\\.$"
+            },
+            ["eye_of_warning"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["flesh_armor"] = {
+                ["enabled"] = true,
+                ["match"] = "^The texture of your skin returns to normal\\.$"
+            },
+            ["fly"] = {
+                ["enabled"] = true,
+                ["match"] = "^You slowly float to the ground\\.$"
+            },
+            ["focused_vision"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["frenzy"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your rage ebbs\\.$"
+            },
+            ["gaias_focus"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["gaias_revenge"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["gaias_totem"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["giant_strength"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel weaker\\.$"
+            },
+            ["globe_of_invulnerability"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your globe of invulnerability shimmers and fades\\.$"
+            },
+            ["godly_embrace"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your godly embrace relaxes\\.$"
+            },
+            ["grey_aura"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your moral standing is no longer cloaked\\.$"
+            },
+            ["harden_body"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your body softens\\.$"
+            },
+            ["haste"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel yourself slow down\\.$"
+            },
+            ["heat_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your magical barrier against fire shimmers and disappears\\.$"
+            },
+            ["heighten_senses"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["hide"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer hidden\\.$"
+            },
+            ["holy_aura"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less holy\\.$"
+            },
+            ["holy_mirror"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less resistant to light and holy attacks\\.$"
+            },
+            ["holy_shield"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["humility"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["huntmaster"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["inertial_barrier"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your inertial barrier dissipates\\.$"
+            },
+            ["intellect_fortress"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your intellectual fortress crumbles\\.$"
+            },
+            ["invis1"] = {
+                ["enabled"] = true,
+                ["match"] = "^You fade into existence\\.$"
+            },
+            ["invis2"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer invisible\\.$"
+            },
+            ["indestructible_aura"] = {
+                ["enabled"] = true,
+                ["match"] = "^The aura around your body fades away\\.$"
+            },
+            ["ironfist"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["levitation"] = {
+                ["enabled"] = false,
+                ["match"] = "^You slowly float to the ground\\.$"
+            },
+            ["lightspeed"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer move at the speed of light\\.$"
+            },
+            ["line_of_protection"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your force field wavers and dissipates\\.$"
+            },
+            ["magic_circle"] = {
+                ["enabled"] = true,
+                ["match"] = "^The magic circle around you shimmers and fades away\\.$"
+            },
+            ["magical_rush"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your pulse slows to a normal rate\\.$"
+            },
+            ["mental_balance"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your mental abilities feel less balanced\\.$"
+            },
+            ["mental_barrier"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your mental barrier breaks down\\.$"
+            },
+            ["mystic_might"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your mystic might fades away\\.$"
+            },
+            ["night_vision"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer see in the dark\\.$"
+            },
+            ["nimble_cunning"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel a little less cunning\\.$"
+            },
+            ["party_harmony"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer in harmony with your party\\.$"
+            },
+            ["party_sanctuary"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["party_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer surrounded by your party shield\\.$"
+            },
+            ["pass_door"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel solid again\\.$"
+            },
+            ["pass_without_trace"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer pass without trace\\.$"
+            },
+            ["perception"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less perceptive\\.$"
+            },
+            ["power_of_faith"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel weaker as you question your faith\\.$"
+            },
+            ["power_projection"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["prayer_of_fortune"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your prayer of fortune weakens\\.$"
+            },
+            ["precision"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["protection_evil"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer feel protected by the forces of light\\.$"
+            },
+            ["protection_good"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer feel protected by the forces of shadow\\.$"
+            },
+            ["pure_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["rally"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["revelation"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer feel so intelligent\\.$"
+            },
+            ["righteous_anger"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["sanctuary"] = {
+                ["enabled"] = false,
+                ["match"] = "^Your brilliant white aura of sanctuary shimmers and is gone\\.$"
+            },
+            ["self_harmony"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer in harmony with yourself\\.$"
+            },
+            ["sense_age"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["sense_anger"] = {
+                ["enabled"] = true,
+                ["match"] = "^You can no longer sense anger\\.$"
+            },
+            ["sense_danger"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["serenity"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["shadow_form1"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer merged with the shadows\\.$"
+            },
+            ["shadow_form2"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer move in the shadows\\.$"
+            },
+            ["shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your force shield shimmers then fades away\\.$"
+            },
+            ["shockproof"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel more vulnerable to electricity\\.$"
+            },
+            ["sneak1"] = {
+                ["enabled"] = true,
+                ["match"] = "^You emerge from the shadows\\.$"
+            },
+            ["sneak2"] = {
+                ["enabled"] = true,
+                ["match"] = "^You no longer feel sneaky\\.$"
+            },
+            ["spirit_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel more vulnerable as the spirits leave your side\\.$"
+            },
+            ["stalk"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["stealth"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["stone_skin"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your skin feels soft again\\.$"
+            },
+            ["sustenance"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your metabolism reverts to its usual speed\\.$"
+            },
+            ["test_of_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["thought_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^A momentary lapse of concentration causes your thought shield to fade away\\.$"
+            },
+            ["timeshifting"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer manipulating time\\.$"
+            },
+            ["totem_guidance"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["totem_force"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["toxic_resistance"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less resistant to poison\\.$"
+            },
+            ["true_seeing"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel almost blind at the loss of your magical sight\\.$"
+            },
+            ["underwater_breathing"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are no longer able to breathe underwater\\.$"
+            },
+            ["vaccinate"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel more vulnerable to disease\\.$"
+            },
+            ["vale"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["volley"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["warmth"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel more vulnerable to cold\\.$"
+            },
+            ["willpower"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel less in control of your will\\.$"
+            },
+            ["wolf_spirits"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["wraith_form"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+        } -- end messages
+    }, -- end spellup_off
+    ["spellup_on"] = {
+        ["enabled"] = true,
+        ["messages"] = {
+            ["lucky_cast"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your magic is blessed with the luck of .+?!$"
+            },
+            ["absorb"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel a strong magical force surround your body\\.$"
+            },
+            ["accelerate"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel yourself accelerate\\.$"
+            },
+            ["acidproof"] = {
+                ["enabled"] = true,
+                ["match"] = "^You protect yourself from acid\\.$"
+            },
+            ["adrenaline_control"] = {
+                ["enabled"] = true,
+                ["match"] = "^You have given yourself an adrenaline rush!$"
+            },
+            ["aid"] = {
+                ["enabled"] = true,
+                ["match"] = "^.+? lends a hand to aid you\\.$"
+            },
+            ["antimagic_shell"] = {
+                ["enabled"] = true,
+                ["match"] = "^You conjure forth an anti-magic shell about you\\.$"
+            },
+            ["armor"] = {
+                ["enabled"] = true,
+                ["match"] = "^You cast a protective armor around yourself\\.$"
+            },
+            ["augmented_healing"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["avoidance"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now possess magical powers of avoidance\\.$"
+            },
+            ["awakening"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your mind feels like a sponge as its power is awakened\\.$"
+            },
+            ["awareness"] = {
+                ["enabled"] = true,
+                ["match"] = "^You become more aware\\.$"
+            },
+            ["barkskin"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your skin becomes tough like the bark of a tree\\.$"
+            },
+            ["berserk"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your pulse races as you go berserk!$"
+            },
+            ["bless"] = {
+                ["enabled"] = true,
+                ["match"] = "^You grant yourself the favor of .+?\\.$"
+            },
+            ["blur"] = {
+                ["enabled"] = true,
+                ["match"] = "^You make your appearance look blurred\\.$"
+            },
+            ["biofeedback"] = {
+                ["enabled"] = false,
+                ["match"] = "^Your body begins to glow with an inner light\\.$"
+            },
+            ["calculation"] = {
+                ["enabled"] = true,
+                ["match"] = "^You begin to calculate your odds with great precision\\.$"
+            },
+            ["call_upon_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["cell_potential"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["chameleon_power"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are now blended with your surroundings\\.$"
+            },
+            ["champions_strength"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are granted the strength of .+?\\.$"
+            },
+            ["channel_energy"] = {
+                ["enabled"] = true,
+                ["match"] = "^You begin to focus your energy into your weapon\\.$"
+            },
+            ["combat_empathy"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["combat_mind"] = {
+                ["enabled"] = true,
+                ["match"] = "^You gain a keen understanding of battle tactics\\.$"
+            },
+            ["compression"] = {
+                ["enabled"] = true,
+                ["match"] = "^You compress your body to resist magical attacks\\.$"
+            },
+            ["darkness"] = {
+                ["enabled"] = true,
+                ["match"] = "^You twiddle your fingers and summon a globe of darkness around yourself\\.$"
+            },
+            ["desecration"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["detect_evil"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your eyes glow red\\.$"
+            },
+            ["detect_good"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your eyes glow yellow\\.$"
+            },
+            ["detect_hidden"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your eyes are more focused\\.$"
+            },
+            ["detect_invis"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your eyes tingle\\.$"
+            },
+            ["detect_magic"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your eyes glow blue\\.$"
+            },
+            ["detect_undead"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["displacement"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your form shimmers and you appear displaced\\.$"
+            },
+            ["divine_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["divine_swiftness"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are blessed with divine swiftness!$"
+            },
+            ["ectoplasmic_form"] = {
+                ["enabled"] = false,
+                ["match"] = "^You turn translucent\\.$"
+            },
+            ["elemental_focus"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["elemental_ward"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["enchanters_focus"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["energy_ball"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["energy_containment"] = {
+                ["enabled"] = true,
+                ["match"] = "^You can now absorb some forms of energy\\.$"
+            },
+            ["energy_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You protect yourself from destructive energy\\.$"
+            },
+            ["enhanced_strength"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are now HUGE!$"
+            },
+            ["enlightenment"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel enlightened\\.$"
+            },
+            ["eye_of_warning"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["flesh_armor"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your flesh turns to steel\\.$"
+            },
+            ["fly"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your feet rise off the ground\\.$"
+            },
+            ["focused_vision"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["frenzy"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are filled with holy wrath!$"
+            },
+            ["gaias_focus"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["gaias_revenge"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["gaias_totem"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["giant_strength"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your muscles surge with heightened power!$"
+            },
+            ["globe_of_invulnerability"] = {
+                ["enabled"] = true,
+                ["match"] = "^You conjure forth a globe of physical resistance around you\\.$"
+            },
+            ["godly_embrace"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are embraced by the might of .+?\\.$"
+            },
+            ["grey_aura"] = {
+                ["enabled"] = true,
+                ["match"] = "^You surround yourself with a dull grey aura\\.$"
+            },
+            ["harden_body"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel your body harden\\.$"
+            },
+            ["haste"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel yourself moving more quickly\\.$"
+            },
+            ["heat_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You surround yourself with a heat shield\\.$"
+            },
+            ["heighten_senses"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["hide"] = {
+                ["enabled"] = true,
+                ["match"] = "^You hide in the shadows\\.$"
+            },
+            ["hide_elf"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your natural abilities allow you to hide with ease\\.$"
+            },
+            ["holy_aura"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel protected by .+?\\.$"
+            },
+            ["holy_mirror"] = {
+                ["enabled"] = true,
+                ["match"] = "^You protect yourself from the forces of holy and light\\.$"
+            },
+            ["holy_shield"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["humility"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["huntmaster"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["inertial_barrier"] = {
+                ["enabled"] = true,
+                ["match"] = "^An inertial barrier forms around you\\.$"
+            },
+            ["intellect_fortress"] = {
+                ["enabled"] = true,
+                ["match"] = "^A virtual fortress forms around you\\.$"
+            },
+            ["invis"] = {
+                ["enabled"] = true,
+                ["match"] = "^You fade out of existence\\.$"
+            },
+            ["indestructible_aura"] = {
+                ["enabled"] = true,
+                ["match"] = "^A warm glowing aura forms around you\\.$"
+            },
+            ["ironfist"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["levitation"] = {
+                ["enabled"] = true,
+                ["match"] = "^You levitate yourself\\.$"
+            },
+            ["lightspeed"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel yourself moving at the speed of light!$"
+            },
+            ["line_of_protection"] = {
+                ["enabled"] = true,
+                ["match"] = "^You call upon .+? to grant you a force field of divine protection\\.$"
+            },
+            ["magic_circle"] = {
+                ["enabled"] = true,
+                ["match"] = "^A magical circle of protection forms around you\\.$"
+            },
+            ["magical_rush"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel your adrenaline pump as your body speeds up\\.$"
+            },
+            ["mental_balance"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your mental abilities are now more balanced\\.$"
+            },
+            ["mental_barrier"] = {
+                ["enabled"] = true,
+                ["match"] = "^You erect a mental barrier around yourself\\.$"
+            },
+            ["mystic_might"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel your body surge with extra power\\.$"
+            },
+            ["night_vision"] = {
+                ["enabled"] = false,
+                ["match"] = "^Your eyes glow red\\.$"
+            },
+            ["nimble_cunning"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel more cunning\\.$"
+            },
+            ["party_harmony"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are now in complete harmony with the party\\.$"
+            },
+            ["party_sanctuary"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["party_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are surrounded by your protective shield\\.$"
+            },
+            ["pass_door"] = {
+                ["enabled"] = true,
+                ["match"] = "^You turn translucent\\.$"
+            },
+            ["pass_without_trace_attempt"] = {
+                ["enabled"] = true,
+                ["match"] = "^You attempt to pass without trace\\.$"
+            },
+            ["pass_without_trace"] = {
+                ["enabled"] = true,
+                ["match"] = "^You move silently through your surroundings, leaving no trace\\.$"
+            },
+            ["perception"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel your concentration increase\\.$"
+            },
+            ["power_of_faith"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your faith drives you to strength beyond your means\\.$"
+            },
+            ["power_projection"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["prayer_of_fortune"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are blessed with good fortune from .+?\\.$"
+            },
+            ["precision"] = {
+                ["enabled"] = false,
+                ["match"] = "^unknoan$"
+            },
+            ["protection_evil"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel aligned with darkness\\.$"
+            },
+            ["protection_good"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel holy and pure\\.$"
+            },
+            ["pure_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["rally"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["revelation"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are granted the knowledge of the ages\\.$"
+            },
+            ["righteous_anger"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["sanctuary"] = {
+                ["enabled"] = false,
+                ["match"] = "^You are surrounded by a shimmering white aura of divine protection\\.$"
+            },
+            ["self_harmony"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are completely focused on your inner power\\.$"
+            },
+            ["sense_age"] = {
+                ["enabled"] = false,
+                ["match"] = "^unknoan$"
+            },
+            ["sense_anger"] = {
+                ["enabled"] = true,
+                ["match"] = "^You can now sense anger in your immediate area\\.$"
+            },
+            ["sense_danger"] = {
+                ["enabled"] = false,
+                ["match"] = "^unknoan$"
+            },
+            ["serenity"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["shadow_form_attempt"] = {
+                ["enabled"] = true,
+                ["match"] = "^You attempt to move in the shadows\\.$"
+            },
+            ["shadow_form"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now move silently in the shadows\\.$"
+            },
+            ["shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You are surrounded by a force shield\\.$"
+            },
+            ["shockproof"] = {
+                ["enabled"] = true,
+                ["match"] = "^You conjure a shield of earth around yourself\\.$"
+            },
+            ["sneak"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now move silently\\.$"
+            },
+            ["sneak_elf"] = {
+                ["enabled"] = true,
+                ["match"] = "^You use your natural elven abilities to move silently\\.$"
+            },
+            ["spirit_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel a weave of awesome spirits surround your body\\.$"
+            },
+            ["stalk"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["stealth"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["stone_skin"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your skin turns to stone\\.$"
+            },
+            ["sustenance"] = {
+                ["enabled"] = true,
+                ["match"] = "^Your metabolism slows down to preserve food and drink\\.$"
+            },
+            ["test_of_faith"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["thought_shield"] = {
+                ["enabled"] = true,
+                ["match"] = "^You have created a shield around yourself\\.$"
+            },
+            ["timeshifting"] = {
+                ["enabled"] = true,
+                ["match"] = "^You start to manipulate time\\.$"
+            },
+            ["totem_guidance"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["totem_force"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["toxic_resistance"] = {
+                ["enabled"] = true,
+                ["match"] = "^You inject yourself with anti-toxin\\.$"
+            },
+            ["true_seeing_evil"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now detect the presence of those who walk in shadow\\.$"
+            },
+            ["true_seeing_good"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now detect the presence of those who walk in the light\\.$"
+            },
+            ["true_seeing_hidden"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now detect the presence of those hidden\\.$"
+            },
+            ["true_seeing_invis"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now detect the presence of those invisible\\.$"
+            },
+            ["true_seeing_magic"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now sense magical properties held within artifacts\\.$"
+            },
+            ["true_seeing"] = {
+                ["enabled"] = true,
+                ["match"] = "^You now have true sight\\.$"
+            },
+            ["underwater_breathing"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel gills growing on your neck!$"
+            },
+            ["vaccinate"] = {
+                ["enabled"] = true,
+                ["match"] = "^You feel protected from disease\\.$"
+            },
+            ["vale"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["volley"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["warmth"] = {
+                ["enabled"] = true,
+                ["match"] = "^You protect yourself from cold\\.$"
+            },
+            ["willpower"] = {
+                ["enabled"] = true,
+                ["match"] = "^You protect yourself from mental attacks\\.$"
+            },
+            ["wolf_spirits"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+            ["wraith_form"] = {
+                ["enabled"] = false,
+                ["match"] = "n/a"
+            },
+        } -- end messages
+    }, -- end spellup_on
+}
+
+
+
+--------------------------------------------------
+-- Omit
+--------------------------------------------------
+
+Omit = {}
+
+function Omit.initialize()
+    AddAlias("alias_omit_restore_default",
+        "^amg\\s+restoredefault(?:\\s+(?<confirm>\\w+))?$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.restore_default"
+    )
+    
+    AddAlias("alias_omit_display_count",
+        "^amg\\s+count$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.display_count"
+    )
+    AddAlias("alias_omit_display_group_list",
+        "^amg\\s+show$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.display_group_list"
+    )
+    AddAlias("alias_omit_display_group",
+        "^amg\\s+show\\s+(?<group>\\w+)$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.display_group"
+    )
+    AddAlias("alias_omit_display_message",
+        "^amg\\s+show\\s+(?<group>\\w+)\\s+(?<message>\\w+)$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.display_message"
+    )
+    
+    AddAlias("alias_omit_toggle_group_list",
+        "^amg\\s+(?<enable>en|dis)able$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.toggle_group_list"
+    )
+    AddAlias("alias_omit_toggle_group",
+        "^amg\\s+(?<enable>en|dis)able\\s+(?<group>\\w+)$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.toggle_group"
+    )
+    AddAlias("alias_omit_toggle_message",
+        "^amg\\s+(?<enable>en|dis)able\\s+(?<group>\\w+)\\s+(?<message>\\w+)$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.toggle_message"
+    )
+    
+    AddAlias("alias_omit_add_message",
+        "^amg\\s+add\\s+(?<group>\\w+)\\s+(?<message>\\w+)\\s+(?<match>.+?)$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.add_message"
+    )
+    -- A few quick and dirty error-handling aliases for the above
+    AddAlias("alias_omit_add_message_no_group_name",
+        "^amg\\s+add$",
+        "Utility.plugin_message('You must specify the group to which the message will belong.')",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary
+    )
+    AddAlias("alias_omit_add_message_no_message_name",
+        "^amg\\s+add\\s+(?<group>\\w+)$",
+        "Utility.plugin_message('You must give this message a name.')",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary
+    )
+    AddAlias("alias_omit_add_message_no_match_string",
+        "^amg\\s+add\\s+(?<group>\\w+)\\s+(?<message>\\w+)$",
+        "Utility.plugin_message('You must specify a regular expression to match on.')",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary
+    )
+    for _, suffix in ipairs{"group_name", "message_name", "match_string"} do
+        SetAliasOption("alias_omit_add_message_no_" .. suffix, "send_to", sendto.script)
+    end
+    
+    AddAlias("alias_omit_edit_message",
+        "^amg\\s+edit\\s+(?<group>\\w+)\\s+(?<message>\\w+)\\s+(?<field>\\w+)\\s+(?<value>.+?)$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.edit_message"
+    )
+    -- A few quick and dirty error-handling aliases for the above
+    AddAlias("alias_omit_edit_message_no_group_name",
+        "^amg\\s+edit$",
+        "Utility.plugin_message('You must specify the group to which the message belongs.')",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary
+    )
+    AddAlias("alias_omit_edit_message_no_message_name",
+        "^amg\\s+edit\\s+(?<group>\\w+)$",
+        "Utility.plugin_message('Edit which message?')",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary
+    )
+    AddAlias("alias_omit_edit_message_no_field",
+        "^amg\\s+edit\\s+(?<group>\\w+)\\s+(?<message>\\w+)$",
+        "Utility.plugin_message('Edit which field? Options are @Yname@w, @Ygroup@w, and @Ymatch@w.')",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary
+    )
+    AddAlias("alias_omit_edit_message_no_value",
+        "^amg\\s+edit\\s+(?<group>\\w+)\\s+(?<message>\\w+)\\s+(?<field>\\w+)$",
+        [[
+            local field = string.lower("%<field>")
+            local valueType = field == "name" and "message name" or field == "group" and "group name" or field == "match" and "regular expression" or "value"
+            Utility.plugin_message(string.format("You must specify a new %s to be assigned to this message.", valueType))
+        ]],
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary
+    )
+    for _, suffix in ipairs{"group_name", "message_name", "field", "value"} do
+        SetAliasOption("alias_omit_edit_message_no_" .. suffix, "send_to", sendto.script)
+    end
+    
+    AddAlias("alias_omit_remove",
+        "^amg\\s+remove(?<args>\\s+.*?)?$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Omit.remove"
+    )
+    
+    if (var.groups) then
+        Omit.groups = loadstring("return " .. var.groups)()
+    else
+        Omit.set_default_groups()
+    end
+    Omit.add_triggers()
+    Omit.display_count()
+end
+
+function Omit.add_triggers()
+    Omit.delete_triggers()
+    for groupName, groupInfo in pairs(Omit.groups) do
+        if (groupInfo.enabled) then
+            for messageName, messageInfo in pairs(groupInfo.messages) do
+                if (messageInfo.enabled) then
+                    local triggerName = string.format("trigger_omit_%s_%s", groupName, messageName)
+                    AddTriggerEx(triggerName, messageInfo.match, "",
+                        trigger_flag.Enabled + trigger_flag.OmitFromOutput + trigger_flag.KeepEvaluating + trigger_flag.RegularExpression + trigger_flag.Temporary,
+                        custom_colour.NoChange, 0, "", "", sendto.world, 50
+                    )
+                    SetTriggerOption(triggerName, "group", string.format("trigger_group_omit_%s", groupName))
+                end
+            end
+        end
+    end
+end
+
+function Omit.delete_triggers()
+    local triggers = GetTriggerList()
+    if (triggers) then
+        for i = 1, #triggers do
+            EnableTrigger(triggers[i], false)
+            DeleteTrigger(triggers[i])
+        end
+    end
+end
+
+function Omit.save()
+    var.groups = serialize.save_simple(Omit.groups)
+end
+
+function Omit.set_default_groups()
+    Omit.groups = copytable.deep(DEFAULT_OMIT_GROUPS)
+    Omit.save()
+end
+
+function Omit.restore_default(alias, line, wc)
+    if (wc.confirm:lower() ~= "confirm") then
+        Utility.plugin_message("Are you sure you want to restore default settings? This will delete any messages you have added.")
+        Utility.print("                 Enter @Yamg restoredefault confirm @wto continue.")
+        return
+    end
+    Omit.set_default_groups()
+    Omit.add_triggers()
+    Utility.plugin_message("Plugin has been restored to default settings.")
+    Omit.display_count()
+end
+
+function Omit.display_count()
+    local numGroups = 0
+    local numMessages = 0
+    for groupName, groupInfo in pairs(Omit.groups) do
+        if (groupInfo.enabled) then
+            numGroups = numGroups + 1
+            for messageName, messageInfo in pairs(groupInfo.messages) do
+                if (messageInfo.enabled) then
+                    numMessages = numMessages + 1
+                end
+            end
+        end
+    end
+    
+    if (numMessages == 0) then
+        Utility.plugin_message("Currently gagging no messages.")
+        return
+    end
+    local str = "Currently gagging %s message%s in %s group%s."
+    Utility.plugin_message(str:format(numMessages, numMessages == 1 and "" or "s",
+        numGroups, numGroups == 1 and "" or "s"
+    ))
+end
+
+function Omit.display_group_list(alias, line, wc)
+    local groups = {}
+    for groupName, groupInfo in pairs(Omit.groups) do
+        table.insert(groups, {name=groupName, enabled=groupInfo.enabled})
+    end
+    table.sort(groups, function(e1, e2) return e1.name < e2.name end)
+    
+    local tableHorizontalSeperator = string.format("+-%s-+---+-%s-+---+", string.rep("-", 25), string.rep("-", 25))
+    local tableHeaders = string.format("| @W%-25.25s @w|   | @W%-25.25s @w|   |", "Group Name", "Group name")
+    local tableEntry = "| @Y%-25.25s @w| %s%-1.1s @w| @Y%-25.25s @w| %s%-1.1s @w|"
+    Utility.print(tableHorizontalSeperator)
+    Utility.print(tableHeaders)
+    Utility.print(tableHorizontalSeperator)
+    for i = 1, #groups, 2 do
+        local column1, column2 = groups[i] or {}, groups[i + 1] or {}
+        Utility.print(tableEntry:format(
+            column1.name or "", column1.enabled and "@G" or "@R",
+            column1.enabled == true and "y" or column1.enabled == false and "n" or "",
+            column2.name or "", column2.enabled and "@G" or "@R",
+            column2.enabled == true and "y" or column2.enabled == false and "n" or ""
+        ))
+    end
+    Utility.print(tableHorizontalSeperator)
+end
+
+function Omit.display_group(alias, line, wc)
+    local group = wc.group:lower()
+    if (not Omit.groups[group]) then
+        Utility.plugin_message(string.format("The group %s does not exist.", group))
+        Utility.print("                 Enter @Yamg show @wto view the list of groups.")
+        return
+    end
+    
+    local messages = {}
+    for messageName, messageInfo in pairs(Omit.groups[group].messages) do
+        table.insert(messages, {name=messageName, enabled=messageInfo.enabled, match=messageInfo.match})
+    end
+    table.sort(messages, function(e1, e2) return e1.name < e2.name end)
+    
+    local groupNameHeader = string.format("@W%s @w(%sabled@w)", group:upper(), Omit.groups[group].enabled and "@Gen" or "@Rdis")
+    local tableHorizontalSeperator = string.format("+-%s-+---+-%s-+", string.rep("-", 20), string.rep("-", 49))
+    local tableHeader = string.format("| @W%-20.20s @w|   | @W%-49.49s |", "Message Name", "Match String")
+    local tableEntry = "| @Y%-20.20s @w| %s%-1.1s @w| %-49.49s |"
+    -- This line prints the main group name header centered
+    Utility.print(string.format("%s%s", string.rep(" ", math.floor((80 - #strip_colours(groupNameHeader)) / 2)), groupNameHeader))
+    Utility.print(tableHorizontalSeperator)
+    Utility.print(tableHeader)
+    Utility.print(tableHorizontalSeperator)
+    for i, messageInfo in ipairs(messages) do
+        Utility.print(tableEntry:format(
+            messageInfo.name, messageInfo.enabled and "@G" or "@R",
+            messageInfo.enabled and "y" or "n", messageInfo.match
+        ))
+    end
+    Utility.print(tableHorizontalSeperator)
+end
+
+function Omit.display_message(alias, line, wc)
+    local group = wc.group:lower()
+    local message = wc.message:lower()
+    if (not Omit.groups[group]) then
+        Utility.plugin_message(string.format("The group %s does not exist.", group))
+        Utility.print("                 Enter @Yamg show @wto view the list of groups.")
+        return
+    end
+    if (not Omit.groups[group].messages[message]) then
+        Utility.plugin_message(string.format("No message named %s exists in the %s group.", message, group))
+        Utility.print(string.format("                 Enter @Yamg show %s @wto view the list of messages in that group.", group))
+        return
+    end
+    Utility.print(string.format("@YMessage Name@w: %s", message))
+    Utility.print(string.format("@YGroup@w: %s", group))
+    Utility.print(string.format("@YMatch Text@w: %s", Omit.groups[group].messages[message].match))
+    Utility.print(string.format("@YEnabled@w: %s", Omit.groups[group].messages[message].enabled and "yes" or "no"))
+end
+
+function Omit.toggle_group_list(alias, line, wc)
+    local enable = wc.enable:lower() == "en" and true or false
+    for groupName, groupInfo in pairs(Omit.groups) do
+        groupInfo.enabled = enable
+    end
+    Omit.save()
+    Omit.add_triggers()
+    Utility.plugin_message(string.format("All groups %sabled.", wc.enable:lower()))
+    Omit.display_count()
+end
+
+function Omit.toggle_group(alias, line, wc)
+    local enable = wc.enable:lower() == "en" and true or false
+    local group = wc.group:lower()
+    if (not Omit.groups[group]) then
+        Utility.plugin_message(string.format("The group %s does not exist.", group))
+        Utility.print("                 Enter @Yamg show @wto view the list of groups.")
+        return
+    end
+    Omit.groups[group].enabled = enable
+    Omit.save()
+    Omit.add_triggers()
+    Utility.plugin_message(string.format("The %s group is now %sabled.", group, wc.enable:lower()))
+    Omit.display_count()
+end
+
+function Omit.toggle_message(alias, line, wc)
+    local enable = wc.enable:lower() == "en" and true or false
+    local group = wc.group:lower()
+    local message = wc.message:lower()
+    if (not Omit.groups[group]) then
+        Utility.plugin_message(string.format("The group %s does not exist.", group))
+        Utility.print("                 Enter @Yamg show @wto view the list of groups.")
+        return
+    end
+    if (not Omit.groups[group].messages[message]) then
+        Utility.plugin_message(string.format("No message named %s exists in the %s group.", message, group))
+        Utility.print(string.format("                 Enter @Yamg show %s @wto view the list of messages in that group.", group))
+        return
+    end
+    Omit.groups[group].messages[message].enabled = enable
+    Omit.save()
+    Omit.add_triggers()
+    Utility.plugin_message(string.format("The %s message in the %s group is now %sabled.", message, group, wc.enable:lower()))
+    Omit.display_count()
+end
+
+function Omit.add_message(alias, line, wc)
+    local group = wc.group:lower()
+    local message = wc.message:lower()
+    local match = wc.match
+    if (Omit.groups[group]) then
+        -- Make sure we don't override an existing message
+        if (Omit.groups[group].messages[message]) then
+            Utility.plugin_message(string.format("A message named %s in the %s group already exists.", message, group))
+            Utility.print(string.format("                 Enter @Yamg help @wfor notes on editing and removing existing messages."))
+            return
+        end
+    else
+        -- The group doesn't yet exist. Creat it.
+        Omit.groups[group] = {
+            ["enabled"] = true,
+            ["messages"] = {}
+        }
+        Utility.plugin_message(string.format("Created new %s group.", group))
+    end
+    Omit.groups[group].messages[message] = {
+        ["enabled"] = true,
+        ["match"] = match
+    }
+    Omit.save()
+    Omit.add_triggers()
+    Utility.plugin_message(string.format("Added message named %s to the %s group with the following match string:", message, group))
+    Utility.print(string.format("                 %s", match))
+    Omit.display_count()
+end
+
+function Omit.edit_message(alias, line, wc)
+    local group = wc.group:lower()
+    local message = wc.message:lower()
+    local field = wc.field:lower()
+    local value = wc.value
+    if (not Omit.groups[group]) then
+        Utility.plugin_message(string.format("The group %s does not exist.", group))
+        Utility.print("                 Enter @Yamg show @wto view the list of groups.")
+        return
+    end
+    if (not Omit.groups[group].messages[message]) then
+        Utility.plugin_message(string.format("No message named %s exists in the %s group.", message, group))
+        Utility.print(string.format("                 Enter @Yamg show %s @wto view the list of messages in that group.", group))
+        return
+    end
+    
+    if (field == "name") then
+        value = value:lower()
+        local messageInfo = copytable.deep(Omit.groups[group].messages[message])
+        -- No error checking necessary here, since messages are added with unique group+name
+        Omit.groups[group].messages[message] = nil
+        Omit.groups[group].messages[value] = messageInfo
+        Utility.plugin_message(string.format("Changed the name of message %s in the %s group to be %s.", message, group, value))
+    
+    elseif (field == "group") then
+        value = value:lower()
+        -- Before we move anything, make sure we won't override an existing message.
+        if (Omit.groups[value] and Omit.groups[value].messages[message]) then
+            Utility.plugin_message(string.format("A message named %s in the %s group already exists.", message, value))
+            Utility.print(string.format("                 Enter @Yamg help @wfor notes on editing and removing existing messages."))
+            return
+        end
+        local messageInfo = copytable.deep(Omit.groups[group].messages[message])
+        -- Delete this message before we move it.
+        Omit.groups[group].messages[message] = nil
+        -- Since we're removing something from the group and not putting anything back,
+        -- check whether the group is now empty and remove it if so.
+        if (not next(Omit.groups[group].messages)) then
+            Omit.groups[group] = nil
+            Utility.plugin_message(string.format("Removing the %s group as it is now empty.", group))
+        end
+        -- Now, move the new info. Create a new group if necessary.
+        if (not Omit.groups[value]) then
+            Omit.groups[value] = {
+                ["enabled"] = true,
+                ["messages"] = {}
+            }
+            Utility.plugin_message(string.format("Created new %s group.", value))
+        end
+        Omit.groups[value].messages[message] = messageInfo
+        Utility.plugin_message(string.format("Added message named %s to the %s group.", message, value))
+    
+    elseif (field == "match") then
+        Omit.groups[group].messages[message].match = value
+        Utility.plugin_message(string.format("Changed the match string of the %s message in the %s group to the following:", message, group))
+        Utility.print(string.format("                 %s", value))
+    
+    else
+        Utility.plugin_message(string.format("Cannot edit field '%s'. Valid fields are @Yname@w, @Ygroup@w, and @Ymatch@w.", field))
+        return
+    end
+
+    Omit.save()
+    Omit.add_triggers()
+    Omit.display_count()
+end
+
+function Omit.remove(alias, line, wc)
+    -- We do some manual arg parsing here because, between optional/variable arguments,
+    -- it's easier than trying to write multiple regexes that don't overlap. arg1 should be group name,
+    -- arg2 should be either 'confirm' to remove group or message name, arg3, if present, should be 'confirm' to remove message.
+    local args = utils.split(trim(wc.args):lower():gsub("%s+", " "), " ")
+    if (args[1] == "") then
+        -- No (meaningful) args given.
+        Utility.plugin_message("You must specify a group name to remove.")
+        return
+    end
+    local group = args[1]
+    if (not args[2] or args[2] == "confirm") then
+        -- No message name; attempt to remove group.
+        Omit.remove_group(group, args[2] == "confirm" and true or false)
+        return
+    end
+    -- Second arg is present but not 'confirm', so it must be a message name.
+    local message = args[2]
+    Omit.remove_message(group, message, args[3] == "confirm" and true or false)
+end
+
+function Omit.remove_group(group, confirmed)
+    if (not Omit.groups[group]) then
+        Utility.plugin_message(string.format("The group %s does not exist.", group))
+        Utility.print("                 Enter @Yamg show @wto view the list of groups.")
+        return
+    end
+    if (not confirmed) then
+        Utility.plugin_message(string.format("Are you sure you want to remove the %s group? This will delete all messages in the group.", group))
+        Utility.print(string.format("                 Enter @Yamg remove %s confirm @wto continue.", group))
+        return
+    end
+    
+    local numRemoved = 0
+    for messageName, messageInfo in pairs(Omit.groups[group].messages) do
+        numRemoved = numRemoved + 1
+    end
+    Omit.groups[group] = nil
+    Omit.save()
+    Omit.add_triggers()
+    Utility.plugin_message(string.format("Removed the %s group (previously contained %d message%s).", group, numRemoved, numRemoved == 1 and "" or "s"))
+    Omit.display_count()
+end
+
+function Omit.remove_message(group, message, confirmed)
+    if (not Omit.groups[group]) then
+        Utility.plugin_message(string.format("The group %s does not exist.", group))
+        Utility.print("                 Enter @Yamg show @wto view the list of groups.")
+        return
+    end
+    if (not Omit.groups[group].messages[message]) then
+        Utility.plugin_message(string.format("No message named %s exists in the %s group.", message, group))
+        Utility.print(string.format("                 Enter @Yamg show %s @wto view the list of messages in that group.", group))
+        return
+    end
+    if (not confirmed) then
+        Utility.plugin_message(string.format("Are you sure you want to remove the message named %s from the %s group?", message, group))
+        Utility.print(string.format("                 Enter @Yamg remove %s %s confirm @wto continue.", group, message))
+        return
+    end
+    
+    Omit.groups[group].messages[message] = nil
+    Utility.plugin_message(string.format("Removed the message named %s from the %s group.", message, group))
+    -- If the group is now empty, remove it also.
+    if (not next(Omit.groups[group].messages)) then
+        Omit.groups[group] = nil
+        Utility.plugin_message(string.format("Removing the %s group as it is now empty.", group))
+    end
+    Omit.save()
+    Omit.add_triggers()
+    Omit.display_count()
+end
 
 
 
@@ -52,8 +1640,14 @@ Utility = {}
 
 function Utility.initialize()
     -- General aliases
+    AddAlias("alias_utility_help",
+        "^amg\\s+help$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Utility.display_help"
+    )
     
     local initializers = {
+        Omit.initialize,
     }
     for _, initializer in ipairs(initializers) do
         initializer()
@@ -83,7 +1677,49 @@ function Utility.print(str)
 end
 
 function Utility.plugin_message(str)
-    Utility.print(string.format("(@YAreiaOmit@w): %s", str))
+    Utility.print(string.format("(@YMessageGagger@w): %s", str))
+end
+
+function Utility.display_greeting()
+    Utility.plugin_message("AreiaMessageGagger installed. Enter @Yamg help @wfor command usage.")
+end
+
+function Utility.display_help()
+Utility.print("                         @WAreia Message Gagger Commands")
+Utility.print("@Yamg restoredefault [confirm]")
+Utility.print("Restores the plugin to its default state. @R***Note@w: this will permanently delete")
+Utility.print("all messages you have added and revert all changes you have made. Be certain")
+Utility.print("this is what you want before adding the 'confirm' argument.")
+Utility.print("@Yamg count")
+Utility.print("Displays a brief count of the number of enabled messages and groups.")
+Utility.print("@Yamg show [<group name> [<message name>]]")
+Utility.print("Displays info on the requested group or message. '@YAmg show@w' on its own gives a")
+Utility.print("list of all groups along with an indication of whether each group is enabled or")
+Utility.print("disabled currently. '@YAmg show <group>@w' will display all messages within that")
+Utility.print("group, along with an indication of its enabled status and a peek at its match")
+Utility.print("string. To see a message's full regex, enter '@Yamg show <group> <message>@w'.")
+Utility.print("@Yamg <enable|disable> [<group name> [<message name>]]")
+Utility.print("Enables or disables the given group or message. '@Yamg <en|dis>able@w' on its own")
+Utility.print("will enable/disable all groups. To enable/disable a single group, use")
+Utility.print("'@Yamg <en|dis>able <group>@w', and to enable/disable only a single particular")
+Utility.print("message, enter '@Yamg <en|dis>able <group> <message>@w'.")
+Utility.print("@Yamg add <group name> <message name> <match string>")
+Utility.print("Adds a new message to be gagged. All arguments are required. The message will")
+Utility.print("be given the name <message name>, added to the group called <group name> (which")
+Utility.print("will be created if it does not exist), and will gag the line described by")
+Utility.print("<match string>. The match string should be a regular expression. Group and")
+Utility.print("message names may contain only letters, numbers, and underscores.")
+Utility.print("@Yamg edit <group name> <message name> <name|group|match> <value>")
+Utility.print("Changes the given field of the nominated message. <Value> is the value you wish")
+Utility.print("to assign to the field. For example, to change the name of the sanc message in")
+Utility.print("the spellup group to 'sanctuary', enter '@Yamg edit spellup sanc name sanctuary@w'.")
+Utility.print("Assigning a group name that does not already exist will create a new group;")
+Utility.print("likewise, if a group is left empty by this operation, it will be removed.")
+Utility.print("@Yamg remove <group name> [<message name>] [confirm]")
+Utility.print("Removes the given group or message. If only a group name is given, all messages")
+Utility.print("in that group will be deleted. Note that this cannot be reversed, so be certain")
+Utility.print("you have the correct group and message names before adding the 'confirm'")
+Utility.print("argument.")
 end
 
 
@@ -94,17 +1730,11 @@ end
 
 function OnPluginInstall()
     Utility.initialize()
-end
-
-function OnPluginConnect()
-    Send_GMCP_Packet("request char")
+    Utility.display_greeting()
 end
 
 function OnPluginEnable()
     OnPluginInstall()
-    if (IsConnected()) then
-        OnPluginConnect()
-    end
 end
 
 function OnPluginClose()
@@ -113,11 +1743,6 @@ end
 
 function OnPluginDisable()
     OnPluginClose()
-end
-
-function OnPluginBroadcast(msg, id, name, text)
-    if (id == "3e7dedbe37e44942dd46d264") then -- GMCP handler
-    end
 end
 ]]>
 </script>
