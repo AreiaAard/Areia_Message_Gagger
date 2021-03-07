@@ -3,12 +3,12 @@
 
 <muclient>
 <plugin
-   name="Areia_Omit"
+   name="Areia_Message_Gagger"
    author="Areia"
    id="98bd568f0d8a860acccd0db2"
    language="Lua"
    purpose="Gag MUD output"
-   save_state="n"
+   save_state="y"
    date_written="2021-03-01 14:00:00"
    requires="5.07"
    version="1.0"
@@ -1706,6 +1706,58 @@ end
 
 
 --------------------------------------------------
+-- Update
+--------------------------------------------------
+
+Update = {}
+
+function Update.initialize()
+    AddAlias("alias_update",
+        "^amg\\s+update$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Update.update"
+    )
+end
+
+function Update.update(alias, line, wc)
+    raw = "https://raw.githubusercontent.com/AreiaAard/Areia_Message_Gagger/main/invis_ring.xml"
+    async_ok, async = pcall (require, "async")
+    if async_ok then
+        plugin_page = async.doAsyncRemoteRequest(raw, Update.raw_get, "HTTPS")
+    else
+        Utility.plugin_message("Error. Update failed.")
+    end
+end
+
+function Update.raw_get(retval, page, status, headers, full_status, request_url)
+    local PLUGIN_NAME = GetPluginInfo(GetPluginID(), 1)
+    local PLUGIN_VERSION = GetPluginInfo(GetPluginID(), 19)
+    if (status == 200) then
+        raw_version = tonumber(string.match(page, '%s%s+version="([0-9%.]+)"'))
+    end
+    if (raw_version == PLUGIN_VERSION) then
+        Utility.plugin_message(string.format("@Y%s @wis up-to-date with the current version.", PLUGIN_NAME))
+    elseif (raw_version > PLUGIN_VERSION) then
+        Utility.plugin_message(string.format("Updating @Y%s @wfrom v%s to v%s.", PLUGIN_NAME, PLUGIN_VERSION, raw_version))
+        Utility.print("                 Please do not touch anything.")
+        local file = io.open(GetPluginInfo(GetPluginID(), 6), "w")
+        file:write(page)
+        file:close()
+    end
+    raw_version = nil
+    if (GetAlphaOption("script_prefix") == "") then
+        SetAlphaOption("script_prefix", "\\\\\\")
+    end
+    Execute(string.format(
+        "%sDoAfterSpecial(1, \"ReloadPlugin('%s')\", sendto.script)",
+        GetAlphaOption("script_prefix"), GetPluginID()
+    ))
+    Utility.plugin_message("Update completed.")
+end
+
+
+
+--------------------------------------------------
 -- Utility
 --------------------------------------------------
 
@@ -1794,6 +1846,15 @@ Utility.print("Removes the given group or message. If only a group name is given
 Utility.print("in that group will be deleted. Note that this cannot be reversed, so be certain")
 Utility.print("you have the correct group and message names before adding the 'confirm'")
 Utility.print("argument.")
+Utility.print("@Yamg regex [on|off]")
+Utility.print("Choose the method in which the plugin will receive and display match strings.")
+Utility.print("Default is on, which means you should enter and will see regular expressions.")
+Utility.print("That method is more powerful but also more complicated. Turning regex off will")
+Utility.print("allow you to enter simple strings for your gag triggers. You may use '*' as a")
+Utility.print("wildcard, and '\\*' to match a literal '*' (e.g., '* waves at you.' would gag")
+Utility.print("any line where Jo, or Bob, or anyone else waves at you).")
+Utility.print("@Yamg update")
+Utility.print("Check for and install updates to the plugin.")
 end
 
 
