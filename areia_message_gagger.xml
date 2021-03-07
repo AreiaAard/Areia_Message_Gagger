@@ -1372,7 +1372,7 @@ function Omit.display_group(alias, line, wc)
     
     local messages = {}
     for messageName, messageInfo in pairs(Omit.groups[group].messages) do
-        table.insert(messages, {name=messageName, enabled=messageInfo.enabled, match=messageInfo.match})
+        table.insert(messages, {name=messageName, enabled=messageInfo.enabled, match=Translate.useRegex and messageInfo.match or Translate.regex_to_plain(messageInfo.match)})
     end
     table.sort(messages, function(e1, e2) return e1.name < e2.name end)
     
@@ -1409,7 +1409,7 @@ function Omit.display_message(alias, line, wc)
     end
     Utility.print(string.format("@YMessage Name@w: %s", message))
     Utility.print(string.format("@YGroup@w: %s", group))
-    Utility.print(string.format("@YMatch Text@w: %s", Omit.groups[group].messages[message].match))
+    Utility.print(string.format("@YMatch Text@w: %s", Translate.useRegex and Omit.groups[group].messages[message].match or Translate.regex_to_plain(Omit.groups[group].messages[message].match)))
     Utility.print(string.format("@YEnabled@w: %s", Omit.groups[group].messages[message].enabled and "yes" or "no"))
 end
 
@@ -1481,7 +1481,7 @@ function Omit.add_message(alias, line, wc)
     end
     Omit.groups[group].messages[message] = {
         ["enabled"] = true,
-        ["match"] = match
+        ["match"] = Translate.useRegex and match or Translate.plain_to_regex(match)
     }
     Omit.save()
     Omit.add_triggers()
@@ -1543,7 +1543,7 @@ function Omit.edit_message(alias, line, wc)
         Utility.plugin_message(string.format("Added message named %s to the %s group.", message, value))
     
     elseif (field == "match") then
-        Omit.groups[group].messages[message].match = value
+        Omit.groups[group].messages[message].match = Translate.useRegex and value or Translate.plain_to_regex(value)
         Utility.plugin_message(string.format("Changed the match string of the %s message in the %s group to the following:", message, group))
         Utility.print(string.format("                 %s", value))
     
@@ -1633,6 +1633,79 @@ end
 
 
 --------------------------------------------------
+-- Pattern Translation
+--------------------------------------------------
+
+Translate = {}
+
+function Translate.initialize()
+    -- This translate module is really sort of a lie. We will always store messages as and create
+    -- triggers using regex patterns, but vasual users might not be familiar with regex, so we
+    -- supply a means to accept input and display saved messages in a simpler format, referred to
+    -- here as 'plain'. In this format, there is only one 'special' char, '*', which we will take
+    -- to match one or more of any character ('.+?', in regex terms). A literal '*' can be escaped
+    -- with preceding '\'.
+    AddAlias("alias_translate_toggle_regex",
+        "^amg\\s+regex(?:\\s+(?<setting>\\w+))?$", "",
+        alias_flag.Enabled + alias_flag.IgnoreAliasCase + alias_flag.RegularExpression + alias_flag.Temporary,
+        "Translate.toggle_regex"
+    )
+    
+    if (not var.useRegex) then
+        var.useRegex = "1"
+    end
+    Translate.useRegex = var.useRegex == "1" and true or false
+end
+
+function Translate.toggle_regex(alias, line, wc)
+    local setting = wc.setting:lower()
+    if (setting == "") then
+        -- No arg given, so toggle
+        Translate.useRegex = not Translate.useRegex
+    elseif (setting == "on") then
+        Translate.useRegex = true
+    elseif (setting == "off") then
+        Translate.useRegex = false
+    else
+        Utility.plugin_message("Syntax: @Yamg regex [on|off]")
+        return
+    end
+    var.useRegex = Translate.useRegex and "1" or "0"
+    Utility.plugin_message(string.format("Plugin will now receive and output %s-style message patterns.", Translate.useRegex and "regex" or "plain"))
+end
+
+function Translate.plain_to_regex(str)
+    -- Replace escaped *s with a temporary placeholder so we don't erase them in third step
+    local regex = str:gsub("\\%*", "__LITERAL_STAR__")
+    -- Escape special regex chars
+    regex = regex:gsub("([.?+^$\\()[%]{}<>])", "\\%1")
+    -- Now turn any *s into .+? to match one or more of any char. We do this after the escape step so as not to end up with things like '\.\+\?'
+    regex = regex:gsub("%*", ".+?")
+    -- Put back any *s that were escaped as literal *s in the original string
+    regex = regex:gsub("__LITERAL_STAR__", "\\*")
+    -- Finally, anchor the string
+    return string.format("^%s$", regex)
+end
+
+function Translate.regex_to_plain(str)
+    -- Temporarily remember the place of any escaped *s
+    local plain = str:gsub("\\%*", "__LITERAL_STAR__")
+    -- Convert .+? to *
+    plain = plain:gsub("%.%+%?", "%*")
+    -- Convert things like \w+, \d*? to *
+    plain = plain:gsub("\\[a-zA-Z][*+]%??", "*")
+    -- Convert escaped things like \., \?, etc. to regular chars
+    plain = plain:gsub("\\(.)", "%1")
+    -- Return the escaped *s
+    plain = plain:gsub("__LITERAL_STAR__", "\\*")
+    plain = plain:gsub("^%^", "")
+    plain = plain:gsub("%$$", "")
+    return plain
+end
+
+
+
+--------------------------------------------------
 -- Utility
 --------------------------------------------------
 
@@ -1648,6 +1721,7 @@ function Utility.initialize()
     
     local initializers = {
         Omit.initialize,
+        Translate.initialize,
     }
     for _, initializer in ipairs(initializers) do
         initializer()
