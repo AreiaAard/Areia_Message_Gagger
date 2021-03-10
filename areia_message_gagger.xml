@@ -1774,6 +1774,7 @@ function Utility.initialize()
     local initializers = {
         Omit.initialize,
         Translate.initialize,
+        Update.initialize,
     }
     for _, initializer in ipairs(initializers) do
         initializer()
