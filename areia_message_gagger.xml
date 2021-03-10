@@ -1720,7 +1720,7 @@ function Update.initialize()
 end
 
 function Update.update(alias, line, wc)
-    raw = "https://raw.githubusercontent.com/AreiaAard/Areia_Message_Gagger/main/invis_ring.xml"
+    raw = "https://raw.githubusercontent.com/AreiaAard/Areia_Message_Gagger/master/areia_message_gagger.xml"
     async_ok, async = pcall (require, "async")
     if async_ok then
         plugin_page = async.doAsyncRemoteRequest(raw, Update.raw_get, "HTTPS")
